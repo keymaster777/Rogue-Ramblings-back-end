@@ -4,8 +4,9 @@
   "description": "Back end for rogue-ramblings podcast site",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "eslint .",
+    "test": "jest --verbose --runInBand"
   },
   "author": "Riley Cleary",
   "license": "UNLICENSED",
@@ -13,6 +14,9 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "eslint": "^7.20.0"
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.20.0",
+    "jest": "^26.6.3",
+    "supertest": "^6.1.3"
   }
 }
