@@ -1,8 +1,16 @@
+const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const bcrypt = require('bcrypt')
-const saltRounds = 10
+//const bcrypt = require('bcrypt')
 const api = supertest(app)
+
+beforeAll(async (done) => {
+  if(mongoose.connection.readyState !== 1){
+    await mongoose.connection.on('connected', () => done())
+  } else {
+    done()
+  }
+})
 
 describe('API can', () => {
   const route = '/api'
@@ -12,29 +20,29 @@ describe('API can', () => {
       .get(route+'/ping')
       .expect(200)
       .expect('Content-Type', /application\/json/)
-    
-      expect(result.body.ping).toContain('pong')
-  })
 
-  test('can hash a password', async () => {
-    const password = "sekret"
-    const saltRounds = 10
-    const passwordHash = await bcrypt.hash(password, saltRounds)
-
-    const result = await api
-      .get(route+'/hash/'+password)
-      .expect(200)
-
-    const passwordsMatch = await bcrypt.compare(password, result.text) 
-    expect(passwordsMatch).toBe(true);
+    expect(result.body.ping).toContain('pong')
   })
 })
 
+
 describe('User can', () => {
-  test('be retrieved from DB', async () => {
-    const result = await api
-      .get('/api/users/1')
+  test('be created', async () => {
+    const newUser = {
+      username: 'User1',
+      firstname: 'John Dorian',
+      password: 'sekret'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
       .expect(200)
+
   })
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })
 
