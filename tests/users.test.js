@@ -34,16 +34,16 @@ describe('API can', () => {
 
 describe('User can', () => {
   beforeEach(async () => {
-    await api.post('/api/testing/reset')
+    await User.deleteMany({})
   })
   test('be created', async () => {
-
     const usersBeforeTest = await usersInDb()
     const newUser = {
       username: 'User1',
       firstname: 'John Dorian',
       role: 'editor',
-      password: 'sekret'
+      password: 'sekret',
+      userCreateCode: 'sekret'
     }
 
     await api
@@ -54,6 +54,34 @@ describe('User can', () => {
 
     const usersAfterTest = await usersInDb()
     expect(usersAfterTest).toHaveLength(usersBeforeTest.length + 1)
+  })
+
+  test('fails to create with bad user creation code', async () => {
+    const usersBeforeTest = await usersInDb()
+    const newUser = {
+      username: 'User1',
+      firstname: 'John Dorian',
+      role: 'editor',
+      password: 'sekret'
+    }
+
+    //No user create code in request
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    //User create code is empty in request
+    newUser['createUserCode'] = ''
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAfterTest = await usersInDb()
+    expect(usersAfterTest).toHaveLength(usersBeforeTest.length)
   })
 })
 
