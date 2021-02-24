@@ -8,8 +8,8 @@ router.post('/', async (request, response) => {
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
-  if(body.userCreateCode === undefined || body.userCreateCode === ''){
-    return response.status(401).json({ error: 'No user creation code supplied' })
+  if(body.userCreateCode === undefined || !(await bcrypt.compare(body.userCreateCode, config.USER_CREATION_CODE))){
+    return response.status(401).json({ error: 'Invalid user create code.' })
   }
 
   const user = new User({
