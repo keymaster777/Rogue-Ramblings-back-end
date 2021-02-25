@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const config = require('../utils/config')
 
-router.post('/', async (request, response) => {
+router.post('/', async (request, response, next) => {
   const body = request.body
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
@@ -20,8 +20,13 @@ router.post('/', async (request, response) => {
   if(process.env.NODE_ENV === 'test') {
     user['role'] = body.role
   }
-  const savedUser = await user.save()
-  response.json(savedUser)
+  try {
+    const savedUser = await user.save()
+    response.json(savedUser)
+  } catch(error) {
+    next(error)
+  }
+
 })
 
 module.exports = router

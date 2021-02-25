@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
+const middleware = require('./utils/middleware')
 const express = require('express')
 const app = express()
 const usersRouter = require('./controllers/users')
@@ -16,6 +17,8 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
   })
 
 app.use(express.json())
+app.use(middleware.requestLogger)
+
 app.use('/api/users', usersRouter)
 if (process.env.NODE_ENV === 'test') {
   const testingRouter = require('./controllers/testing')
@@ -25,5 +28,8 @@ if (process.env.NODE_ENV === 'test') {
 app.get('/api/ping', (request, response) => {
   response.json({ ping: 'pong' })
 })
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app

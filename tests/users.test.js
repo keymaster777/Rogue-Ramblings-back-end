@@ -69,6 +69,32 @@ describe('User can', () => {
     const usersAfterTest = await helper.usersInDb()
     expect(usersAfterTest).toHaveLength(usersBeforeTest.length)
   })
+
+  test('fails to create when given non unique username', async () => {
+    const usersBeforeTest = await helper.usersInDb()
+    const newUser = {...helper.initialUser}
+    newUser['userCreateCode'] = 'sekret'
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    let usersAfterTest = await helper.usersInDb()
+    expect(usersAfterTest).toHaveLength(usersBeforeTest.length+1)
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` to be unique')
+    usersAfterTest = await helper.usersInDb()
+    // This may look like its checking for another addition but its still checking for just the one
+    expect(usersAfterTest).toHaveLength(usersBeforeTest.length+1)
+  })
 })
 
 afterAll(() => {
