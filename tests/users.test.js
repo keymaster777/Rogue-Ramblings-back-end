@@ -5,10 +5,11 @@ const api = supertest(app)
 const User = require('../models/user')
 const helper = require('./test_helper')
 
-
-
 beforeAll(async (done) => {
-  await helper.waitForDBConnection(done)
+  await helper.waitForDBConnection( async () => {
+    await api.post('/api/testing/reset')
+    done()
+  })
 })
 
 describe('API can', () => {
@@ -22,14 +23,13 @@ describe('API can', () => {
   })
 })
 
-
 describe('User can', () => {
   beforeEach(async () => {
     await User.deleteMany({})
   })
   test('be created', async () => {
     const usersBeforeTest = await helper.usersInDb()
-    const newUser = { ...helper.initialUser }
+    const newUser = { ...helper.initialUsers[0] }
     newUser['userCreateCode'] = 'sekret'
 
     await api
@@ -44,8 +44,7 @@ describe('User can', () => {
 
   test('fails to create with bad user creation code', async () => {
     const usersBeforeTest = await helper.usersInDb()
-
-    const newUser = { ...helper.initialUser }
+    const newUser = { ...helper.initialUsers[0] }
 
     const expectToFailApiBecauseOfBadAuth = async (user) => {
       await api
@@ -72,7 +71,7 @@ describe('User can', () => {
 
   test('fails to create when given non unique username', async () => {
     const usersBeforeTest = await helper.usersInDb()
-    const newUser = {...helper.initialUser}
+    const newUser = { ...helper.initialUsers[0] }
     newUser['userCreateCode'] = 'sekret'
 
     await api
