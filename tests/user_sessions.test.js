@@ -21,8 +21,6 @@ describe('Login is', () => {
       .send(newUser)
       .expect(200)
       .expect('Content-Type', /application\/json/)
-
-    expect(true).toBe(true)
   })
 })
 
