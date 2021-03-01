@@ -5,6 +5,7 @@ const middleware = require('./utils/middleware')
 const express = require('express')
 const app = express()
 const usersRouter = require('./controllers/users')
+const userSessionsRouter = require('./controllers/user_sessions')
 
 logger.info('connecting to', config.MONGODB_URI)
 
@@ -21,6 +22,7 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 
 app.use('/api/users', usersRouter)
+app.use('/api', userSessionsRouter)
 if (process.env.NODE_ENV === 'test') {
   const testingRouter = require('./controllers/testing')
   app.use('/api/testing', testingRouter)
