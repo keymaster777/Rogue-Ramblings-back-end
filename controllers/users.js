@@ -15,7 +15,7 @@ router.post('/', async (request, response, next) => {
   const user = new User({
     username: body.username,
     firstname: body.firstname,
-    passwordHash: passwordHash
+    passwordHash
   })
   if(process.env.NODE_ENV === 'test') {
     user['role'] = body.role

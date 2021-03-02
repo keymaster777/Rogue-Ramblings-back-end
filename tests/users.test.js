@@ -30,7 +30,6 @@ describe('User can', () => {
   test('be created', async () => {
     const usersBeforeTest = await helper.usersInDb()
     const newUser = { ...helper.initialUsers[0] }
-    newUser['userCreateCode'] = 'sekret'
 
     await api
       .post('/api/users')
@@ -55,14 +54,15 @@ describe('User can', () => {
     }
 
     //No user create code in request
+    newUser['userCreateCode'] = undefined
     await expectToFailApiBecauseOfBadAuth(newUser)
 
     //User create code is empty in request
-    newUser['createUserCode'] = ''
+    newUser['userCreateCode'] = ''
     await expectToFailApiBecauseOfBadAuth(newUser)
 
     //User create code is incorrect
-    newUser['createUserCode'] = 'incorrect'
+    newUser['userCreateCode'] = 'incorrect'
     await expectToFailApiBecauseOfBadAuth(newUser)
 
     const usersAfterTest = await helper.usersInDb()
@@ -72,7 +72,6 @@ describe('User can', () => {
   test('fails to create when given non unique username', async () => {
     const usersBeforeTest = await helper.usersInDb()
     const newUser = { ...helper.initialUsers[0] }
-    newUser['userCreateCode'] = 'sekret'
 
     await api
       .post('/api/users')
